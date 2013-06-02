@@ -1,13 +1,12 @@
 import curses
 
-# Originally designed for accman.py
-# Helps to pick (text) boxes created from a list. The use can 
-# pick his choice with navigating keys.
+# Author: Nikolai Tschacher
+# Date: 02.06.2013
 
 class BoxSelector:
-    """ Originally designed for accman.py
-    Helps to pick (text) boxes created from a list. The use can 
-    pick his choice with navigating keys.
+    """ Originally designed for accman.py.
+        Display options build from a list of strings in a (unix) terminal.
+        The user can browser though the textboxes and select one with enter.
     """
     
     def __init__(self, L):
@@ -66,8 +65,8 @@ class BoxSelector:
         self.pad.box()
         
     def _make_textboxes(self):
-        """ Build the textboxes in the self.pad. Center them in the 
-            horizontal middle of the self.pad. """
+        """ Build the textboxes in the pad center and put them in the 
+            horizontal middle of the pad. """
         # Get the actual screensize.
         maxy, maxx = self.stdscr.getmaxyx()
         
@@ -164,3 +163,4 @@ if __name__ == '__main__':
         ]
         
     choice = BoxSelector(L).pick()
+    print('[+] Your choice was "{0}"'.format(L[choice]))
