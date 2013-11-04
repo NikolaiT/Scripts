@@ -6,12 +6,13 @@
 
 import requests
 import lxml.html
+import itertools
 
 N = {'zero': 0,'one': 1,'two': 2,'three': 3,'four': 4,'five': 5,'six': 6,'seven': 7,'eight': 8,'nine': 9,'eleven': 11,'twelve': 12,'thirteen': 13,
 'fourteen': 14,'fifteen': 15,'sixteen': 16,'seventeen': 17,'eighteen': 18,'nineteen': 19, 'ten': 10,'twenty': 20,'thirty': 30,
 'forty': 40,'fifty': 50,'sixty': 60,'seventy': 70,'eighty': 80,'ninety':90}
 
-OPERATORS = {'+': '+', '−': '-', '×': '*', '/': '/'}
+OPERATORS = {'+': '+', '−': '-', '×': '*', '/': '/', '=': '='}
  
 def R(s, d):
         for key, value in d.items():
@@ -20,6 +21,16 @@ def R(s, d):
         if not has_op(s) and 'y' not in s:
                 s = str(sum([int(n) for n in s.split(' ') if n and int(n) in N.values()]))
         return s
+
+# Prevent bad words in eval()        
+def whitelist(captcha):
+	good = list(itertools.chain(N.keys(), [str(i) for i in N.values()], OPERATORS.keys()))
+	for token in captcha.split(' '):
+		token = token.strip()
+		if token and token not in good:
+			print("I failed: [%s]" % token)
+			exit('Better not.')
+	return captcha
 
 def has_op(expr):
         for o in OPERATORS.keys():
@@ -83,7 +94,7 @@ if __name__ == '__main__':
         dom = lxml.html.fromstring(r.text.encode('utf-8'))
         el = dom.find_class('cptch_block')[0]
         captcha = el.text_content().strip()
-        solution = solve(captcha)
+        solution = solve(whitelist(captcha))
 
         for c in el.getchildren():
                 try:
